@@ -1,43 +1,36 @@
+#include "utility.h"
+#include "tokenizer.h"
+
 #include <stdio.h>
 #include <stdlib.h>
+#include <ctype.h>
+#include <string.h>
 
 int main(int argc, char *argv[])
 {
   if (argc != 2)
   {
-    fprintf(stderr, "Incorrect number of arguments\n");
-    return 1;
+    fatal_error("Incorrect number of arguments");
   }
 
-  char *p = argv[1];
+  struct TokenStream stream = tokenize(argv[1]);
 
   printf(".intel_syntax noprefix\n");
   printf(".globl main\n");
   printf("main:\n");
-  printf("  mov rax, %d\n", strtol(p, &p, 10));
 
-  while (*p)
+  printf("  mov rax, %d\n", TokenStream_expect_number(&stream));
+
+  while (!TokenStream_end(&stream))
   {
-    switch (*p)
+    if (TokenStream_consume(&stream, TK_PLUS))
     {
-      case '+':
-      {
-        ++p;
-        printf("  add rax, %ld\n", strtol(p, &p, 10));
-        continue;
-      }
-
-      case '-':
-      {
-        ++p;
-        printf("  sub rax, %ld\n", strtol(p, &p, 10));
-        continue;
-      }
-
-      default:
-      fprintf(stderr, "Unexpected character: '%c'\n", *p);
-      return 1;
+      printf("  add rax, %d\n", TokenStream_expect_number(&stream));
+      continue;
     }
+
+    TokenStream_expect(&stream, TK_MINUS);
+    printf("  sub rax, %d\n", TokenStream_expect_number(&stream));
   }
 
   printf("  ret\n");

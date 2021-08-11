@@ -1,8 +1,8 @@
 .RECIPEPREFIX=>
 
-CFLAGS=-std=c11 -g -static
+CFLAGS= -O0 -g -static -Wall -Wextra
 
-jamcc: jamcc.c
+jamcc: jamcc.c utility.c tokenizer.c
 
 test: jamcc
 >./test.sh
@@ -10,4 +10,6 @@ test: jamcc
 clean:
 >rm -f jamcc *.o *~ tmp*
 
-.PHONY: test clean
+rebuild: clean jamcc
+
+.PHONY: test clean rebuild
