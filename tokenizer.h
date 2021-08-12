@@ -14,8 +14,11 @@ enum TokenKind
   TK_BACKSLASH, // /
   TK_PAREN_L,   // (
   TK_PAREN_R,   // )
-
+  TK_QUESTION,  // ?
+  TK_COLON,     // :
   TK_END,
+
+  TK_COUNT_,
 };
 
 // a singular representable unit of code
@@ -39,10 +42,10 @@ struct TokenStream
 {
   struct TokenStreamNode
   {
-    enum
+    enum NodeConsts
     {
       TOKENS_PER_NODE = 16
-    } NodeConsts;
+    };
     struct TokenStreamNode *next;
     int first, count;
     struct Token tokens[TOKENS_PER_NODE];
@@ -59,11 +62,11 @@ struct Token TokenStream_next(struct TokenStream *stream);
 
 bool TokenStream_end(struct TokenStream* stream);
 
-int TokenStream_expect_number(struct TokenStream *stream);
+struct Token TokenStream_expect(struct TokenStream *stream, enum TokenKind kind);
 
-void TokenStream_expect(struct TokenStream *stream, enum TokenKind kind);
+struct Token TokenStream_consume(struct TokenStream *stream);
 
-bool TokenStream_consume(struct TokenStream *stream, enum TokenKind kind);
+bool TokenStream_discard(struct TokenStream *stream, enum TokenKind kind);
 
 // tokenize the input string and create token stream
 struct TokenStream tokenize(char const *p);

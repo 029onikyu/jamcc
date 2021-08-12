@@ -85,18 +85,7 @@ bool TokenStream_end(struct TokenStream* stream)
   return TokenStream_next(stream).kind == TK_END;
 }
 
-int TokenStream_expect_number(struct TokenStream *stream)
-{
-  struct Token tok = TokenStream_next(stream);
-  if (tok.kind != TK_NUMBER)
-  {
-    fatal_error("Expected number");
-  }
-  TokenStream_pop(stream);
-  return tok.value;
-}
-
-void TokenStream_expect(struct TokenStream *stream, enum TokenKind kind)
+struct Token TokenStream_expect(struct TokenStream *stream, enum TokenKind kind)
 {
   struct Token tok = TokenStream_next(stream);
   if (tok.kind != kind)
@@ -104,9 +93,17 @@ void TokenStream_expect(struct TokenStream *stream, enum TokenKind kind)
     fatal_error("Expected TokenKind id '%d'", kind);
   }
   TokenStream_pop(stream);
+  return tok;
 }
 
-bool TokenStream_consume(struct TokenStream *stream, enum TokenKind kind)
+struct Token TokenStream_consume(struct TokenStream *stream)
+{
+  struct Token tok = TokenStream_next(stream);
+  TokenStream_pop(stream);
+  return tok;
+}
+
+bool TokenStream_discard(struct TokenStream *stream, enum TokenKind kind)
 {
   struct Token tok = TokenStream_next(stream);
   if (tok.kind != kind)
@@ -140,6 +137,26 @@ struct TokenStream tokenize(char const *p)
     else if (*p == '-')
     {
       TokenStream_push(&stream, Token_create(TK_MINUS, p++));
+      continue;
+    }
+    else if (*p == '*')
+    {
+      TokenStream_push(&stream, Token_create(TK_ASTERISK, p++));
+      continue;
+    }
+    else if (*p == '/')
+    {
+      TokenStream_push(&stream, Token_create(TK_BACKSLASH, p++));
+      continue;
+    }
+    else if (*p == '(')
+    {
+      TokenStream_push(&stream, Token_create(TK_PAREN_L, p++));
+      continue;
+    }
+    else if (*p == ')')
+    {
+      TokenStream_push(&stream, Token_create(TK_PAREN_R, p++));
       continue;
     }
 
