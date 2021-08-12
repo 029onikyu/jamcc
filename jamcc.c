@@ -46,10 +46,14 @@ void generate(struct Expression* node)
   {
     generate(node->prefix.expr);
 
+    printf("  pop rax\n");
+
     switch (node->prefix.op)
     {
+      case TK_PLUS:
+        break;
       case TK_MINUS:
-        printf("  neg rax");
+        printf("  neg rax\n");
         break;
     }
 
@@ -70,6 +74,8 @@ int main(int argc, char *argv[])
   struct Parser parser = {};
   parser.stream = &stream;
 
+  Parser_prefix_operator(&parser, TK_PLUS);
+  Parser_prefix_operator(&parser, TK_MINUS);
   Parser_binary_operator(&parser, TK_PLUS,      OP_SUM,     OA_LEFT_ASSOCIATIVE); // addition
   Parser_binary_operator(&parser, TK_MINUS,     OP_SUM,     OA_LEFT_ASSOCIATIVE); // subtraction
   Parser_binary_operator(&parser, TK_ASTERISK,  OP_PRODUCT, OA_LEFT_ASSOCIATIVE); // multiplication
