@@ -176,6 +176,8 @@ struct TokenStream tokenize(char const *p)
         p += 2;
         continue;
       }
+      TokenStream_push(&stream, Token_create(TK_EXCLAMATION, (struct String){p++, 1}));
+      continue;
     }
     else if (*p == '>')
     {

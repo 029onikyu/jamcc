@@ -75,6 +75,12 @@ void generate(struct Expression* node)
       case TK_MINUS:
         printf("  neg rax\n");
         break;
+      case TK_EXCLAMATION:
+        printf("  mov rdx, rax\n");
+        printf("  xor rax, rax\n");
+        printf("  test rdx, rdx\n");
+        printf("  sete al\n");
+        break;
     }
 
     printf("  push rax\n");
@@ -96,12 +102,13 @@ int main(int argc, char *argv[])
 
   Parser_prefix_operator(&parser, TK_PLUS);
   Parser_prefix_operator(&parser, TK_MINUS);
-  Parser_binary_operator(&parser, TK_PLUS,      OP_SUM,     OA_LEFT_ASSOCIATIVE); // addition
-  Parser_binary_operator(&parser, TK_MINUS,     OP_SUM,     OA_LEFT_ASSOCIATIVE); // subtraction
-  Parser_binary_operator(&parser, TK_ASTERISK,  OP_PRODUCT, OA_LEFT_ASSOCIATIVE); // multiplication
-  Parser_binary_operator(&parser, TK_BACKSLASH, OP_PRODUCT, OA_LEFT_ASSOCIATIVE); // division
-  Parser_binary_operator(&parser, TK_EQUAL,     OP_EQUALITY, OA_LEFT_ASSOCIATIVE);
-  Parser_binary_operator(&parser, TK_NOT_EQUAL, OP_EQUALITY, OA_LEFT_ASSOCIATIVE);
+  Parser_prefix_operator(&parser, TK_EXCLAMATION);
+  Parser_binary_operator(&parser, TK_PLUS,      OP_SUM,        OA_LEFT_ASSOCIATIVE); // addition
+  Parser_binary_operator(&parser, TK_MINUS,     OP_SUM,        OA_LEFT_ASSOCIATIVE); // subtraction
+  Parser_binary_operator(&parser, TK_ASTERISK,  OP_PRODUCT,    OA_LEFT_ASSOCIATIVE); // multiplication
+  Parser_binary_operator(&parser, TK_BACKSLASH, OP_PRODUCT,    OA_LEFT_ASSOCIATIVE); // division
+  Parser_binary_operator(&parser, TK_EQUAL,     OP_EQUALITY,   OA_LEFT_ASSOCIATIVE);
+  Parser_binary_operator(&parser, TK_NOT_EQUAL, OP_EQUALITY,   OA_LEFT_ASSOCIATIVE);
   Parser_binary_operator(&parser, TK_GT,        OP_RELATIONAL, OA_LEFT_ASSOCIATIVE);
   Parser_binary_operator(&parser, TK_GTE,       OP_RELATIONAL, OA_LEFT_ASSOCIATIVE);
   Parser_binary_operator(&parser, TK_LT,        OP_RELATIONAL, OA_LEFT_ASSOCIATIVE);
