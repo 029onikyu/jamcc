@@ -49,7 +49,8 @@ enum OperatorPrecedence
 {
   OP_NONE,
   OP_ASSIGNMENT,
-  OP_CONDITIONAL,
+  OP_EQUALITY,
+  OP_RELATIONAL,
   OP_SUM,
   OP_PRODUCT,
   OP_PREFIX,

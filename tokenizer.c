@@ -4,7 +4,7 @@
 #include <string.h>
 #include <ctype.h>
 
-struct Token Token_create(enum TokenKind kind, char const *str)
+struct Token Token_create(enum TokenKind kind, struct String str)
 {
   struct Token tok = {};
   tok.kind = kind;
@@ -12,7 +12,7 @@ struct Token Token_create(enum TokenKind kind, char const *str)
   return tok;
 }
 
-struct Token Token_create_number(int value, char const *str)
+struct Token Token_create_number(int value, struct String str)
 {
   struct Token tok = {};
   tok.kind = TK_NUMBER;
@@ -131,39 +131,80 @@ struct TokenStream tokenize(char const *p)
 
     if (*p == '+')
     {
-      TokenStream_push(&stream, Token_create(TK_PLUS, p++));
+      TokenStream_push(&stream, Token_create(TK_PLUS, (struct String){p++, 1}));
       continue;
     }
     else if (*p == '-')
     {
-      TokenStream_push(&stream, Token_create(TK_MINUS, p++));
+      TokenStream_push(&stream, Token_create(TK_MINUS, (struct String){p++, 1}));
       continue;
     }
     else if (*p == '*')
     {
-      TokenStream_push(&stream, Token_create(TK_ASTERISK, p++));
+      TokenStream_push(&stream, Token_create(TK_ASTERISK, (struct String){p++, 1}));
       continue;
     }
     else if (*p == '/')
     {
-      TokenStream_push(&stream, Token_create(TK_BACKSLASH, p++));
+      TokenStream_push(&stream, Token_create(TK_BACKSLASH, (struct String){p++, 1}));
       continue;
     }
     else if (*p == '(')
     {
-      TokenStream_push(&stream, Token_create(TK_PAREN_L, p++));
+      TokenStream_push(&stream, Token_create(TK_PAREN_L, (struct String){p++, 1}));
       continue;
     }
     else if (*p == ')')
     {
-      TokenStream_push(&stream, Token_create(TK_PAREN_R, p++));
+      TokenStream_push(&stream, Token_create(TK_PAREN_R, (struct String){p++, 1}));
+      continue;
+    }
+    else if (*p == '=')
+    {
+      if (p[1] == '=')
+      {
+        TokenStream_push(&stream, Token_create(TK_EQUAL, (struct String){p, 2}));
+        p += 2;
+        continue;
+      }
+    }
+    else if (*p == '!')
+    {
+      if (p[1] == '=')
+      {
+        TokenStream_push(&stream, Token_create(TK_NOT_EQUAL, (struct String){p, 2}));
+        p += 2;
+        continue;
+      }
+    }
+    else if (*p == '>')
+    {
+      if (p[1] == '=')
+      {
+        TokenStream_push(&stream, Token_create(TK_GTE, (struct String){p, 2}));
+        p += 2;
+        continue;
+      }
+      TokenStream_push(&stream, Token_create(TK_GT, (struct String){p++, 1}));
+      continue;
+    }
+    else if (*p == '<')
+    {
+      if (p[1] == '=')
+      {
+        TokenStream_push(&stream, Token_create(TK_LTE, (struct String){p, 2}));
+        p += 2;
+        continue;
+      }
+      TokenStream_push(&stream, Token_create(TK_LT, (struct String){p++, 1}));
       continue;
     }
 
     if (isdigit(*p))
     {
       char const *str = p;
-      TokenStream_push(&stream, Token_create_number(strtol(p, (char **)&p, 10), str));
+      long value = strtol(p, (char **)&p, 10);
+      TokenStream_push(&stream, Token_create_number(value, (struct String){str, p - str}));
       continue;
     }
 

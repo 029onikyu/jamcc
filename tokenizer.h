@@ -2,20 +2,27 @@
 #define JAMCC_TOKENIZER_H
 
 #include "utility.h"
+#include "jstring.h"
 
 // the different types of tokens that exist
 enum TokenKind
 {
   TK_RESERVED,
-  TK_NUMBER,    // [0-9]+
-  TK_PLUS,      // +
-  TK_MINUS,     // -
-  TK_ASTERISK,  // *
-  TK_BACKSLASH, // /
-  TK_PAREN_L,   // (
-  TK_PAREN_R,   // )
-  TK_QUESTION,  // ?
-  TK_COLON,     // :
+  TK_NUMBER,       // [0-9]+
+  TK_PLUS,         // +
+  TK_MINUS,        // -
+  TK_ASTERISK,     // *
+  TK_BACKSLASH,    // /
+  TK_PAREN_L,      // (
+  TK_PAREN_R,      // )
+  TK_EQUAL,        // ==
+  TK_NOT_EQUAL,    // !=
+  TK_GT,           // >
+  TK_GTE,          // >=
+  TK_LT,           // <
+  TK_LTE,          // <=
+  TK_QUESTION,     // ?
+  TK_COLON,        // :
   TK_END,
 
   TK_COUNT_,
@@ -28,12 +35,12 @@ struct Token
   //int line;       // what line number the token came from
   //int column;     // what column number the token came from
   int value;        // for TK_NUMBER
-  char const *str;
+  struct String str;
 };
 
-struct Token Token_create(enum TokenKind kind, char const *str);
+struct Token Token_create(enum TokenKind kind, struct String str);
 
-struct Token Token_create_number(int value, char const *str);
+struct Token Token_create_number(int value, struct String str);
 
 struct Token Token_create_end();
 

@@ -24,19 +24,39 @@ void generate(struct Expression* node)
 
     switch (node->binary.op)
     {
-      case TK_PLUS:
+      break; case TK_PLUS:
         printf("  add rax, rdi\n");
-        break;
-      case TK_MINUS:
+      break; case TK_MINUS:
         printf("  sub rax, rdi\n");
-        break;
-      case TK_ASTERISK:
+      break; case TK_ASTERISK:
         printf("  imul rax, rdi\n");
-        break;
-      case TK_BACKSLASH:
+      break; case TK_BACKSLASH:
         printf("  cqo\n");
         printf("  idiv rdi\n");
-        break;
+      break; case TK_EQUAL:
+        printf("  cmp rax, rdi\n");
+        printf("  sete al\n");
+        printf("  movzb rax, al\n");
+      break; case TK_NOT_EQUAL:
+        printf("  cmp rax, rdi\n");
+        printf("  setne al\n");
+        printf("  movzb rax, al\n");
+      break; case TK_GT:
+        printf("  cmp rax, rdi\n");
+        printf("  setg al\n");
+        printf("  movzb rax, al\n");
+      break; case TK_GTE:
+        printf("  cmp rax, rdi\n");
+        printf("  setge al\n");
+        printf("  movzb rax, al\n");
+      break; case TK_LT:
+        printf("  cmp rax, rdi\n");
+        printf("  setl al\n");
+        printf("  movzb rax, al\n");
+      break; case TK_LTE:
+        printf("  cmp rax, rdi\n");
+        printf("  setle al\n");
+        printf("  movzb rax, al\n");
     }
 
     printf("  push rax\n");
@@ -80,6 +100,13 @@ int main(int argc, char *argv[])
   Parser_binary_operator(&parser, TK_MINUS,     OP_SUM,     OA_LEFT_ASSOCIATIVE); // subtraction
   Parser_binary_operator(&parser, TK_ASTERISK,  OP_PRODUCT, OA_LEFT_ASSOCIATIVE); // multiplication
   Parser_binary_operator(&parser, TK_BACKSLASH, OP_PRODUCT, OA_LEFT_ASSOCIATIVE); // division
+  Parser_binary_operator(&parser, TK_EQUAL,     OP_EQUALITY, OA_LEFT_ASSOCIATIVE);
+  Parser_binary_operator(&parser, TK_NOT_EQUAL, OP_EQUALITY, OA_LEFT_ASSOCIATIVE);
+  Parser_binary_operator(&parser, TK_GT,        OP_RELATIONAL, OA_LEFT_ASSOCIATIVE);
+  Parser_binary_operator(&parser, TK_GTE,       OP_RELATIONAL, OA_LEFT_ASSOCIATIVE);
+  Parser_binary_operator(&parser, TK_LT,        OP_RELATIONAL, OA_LEFT_ASSOCIATIVE);
+  Parser_binary_operator(&parser, TK_LTE,       OP_RELATIONAL, OA_LEFT_ASSOCIATIVE);
+  //Parser_binary_operator(&parser, TK_CARET, OP_EXPONENT, OA_RIGHT_ASSOCIATIVE); // exponentiation
   Parser_register_prefix(&parser, TK_PAREN_L, GroupParseletFn);
   Parser_register_prefix(&parser, TK_NUMBER,  LiteralParseletFn);
 
