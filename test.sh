@@ -52,4 +52,6 @@ assert 0 "!4;"
 assert 1 "!(0 == 1);"
 assert 0 "!(1 == 1);"
 
+assert 3 "1; 2; 3;"
+
 echo OK

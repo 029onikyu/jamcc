@@ -7,20 +7,33 @@
 #include <ctype.h>
 #include <string.h>
 
-void generate(struct Expression* node)
+static int depth;
+
+static void push(void)
+{
+  printf("  push rax\n");
+  ++depth;
+}
+
+static void pop(char const *arg)
+{
+  printf("  pop %s\n", arg);
+  --depth;
+}
+
+void generate(struct Expression *node)
 {
   if (node->kind == EK_LITERAL)
   {
-    printf("  push %d\n", node->literal.integral_value);
+    printf("  mov rax, %d\n", node->literal.integral_value);
     return;
-  } 
+  }
   if (node->kind == EK_BINARY)
   {
-    generate(node->binary.left);
     generate(node->binary.right);
-
-    printf("  pop rdi\n");
-    printf("  pop rax\n");
+    push();
+    generate(node->binary.left);
+    pop("rdi");
 
     switch (node->binary.op)
     {
@@ -33,61 +46,65 @@ void generate(struct Expression* node)
       break; case TK_BACKSLASH:
         printf("  cqo\n");
         printf("  idiv rdi\n");
-      break; case TK_EQUAL:
+      break;
+      case TK_EQUAL:
+      case TK_NOT_EQUAL:
+      case TK_GT:
+      case TK_GTE:
+      case TK_LT:
+      case TK_LTE:
         printf("  cmp rax, rdi\n");
-        printf("  sete al\n");
-        printf("  movzb rax, al\n");
-      break; case TK_NOT_EQUAL:
-        printf("  cmp rax, rdi\n");
-        printf("  setne al\n");
-        printf("  movzb rax, al\n");
-      break; case TK_GT:
-        printf("  cmp rax, rdi\n");
-        printf("  setg al\n");
-        printf("  movzb rax, al\n");
-      break; case TK_GTE:
-        printf("  cmp rax, rdi\n");
-        printf("  setge al\n");
-        printf("  movzb rax, al\n");
-      break; case TK_LT:
-        printf("  cmp rax, rdi\n");
-        printf("  setl al\n");
-        printf("  movzb rax, al\n");
-      break; case TK_LTE:
-        printf("  cmp rax, rdi\n");
-        printf("  setle al\n");
+        if (node->binary.op == TK_EQUAL)
+          printf("  sete al\n");
+        else if (node->binary.op == TK_NOT_EQUAL)
+          printf("  setne al\n");
+        else if (node->binary.op == TK_GT)
+          printf("  setg al\n");
+        else if (node->binary.op == TK_GTE)
+          printf("  setge al\n");
+        else if (node->binary.op == TK_LT)
+          printf("  setl al\n");
+        else if (node->binary.op == TK_LTE)
+          printf("  setle al\n");
         printf("  movzb rax, al\n");
     }
-
-    printf("  push rax\n");
     return;
   }
   if (node->kind == EK_PREFIX)
   {
     generate(node->prefix.expr);
 
-    printf("  pop rax\n");
-
     switch (node->prefix.op)
     {
-      case TK_PLUS:
-        break;
-      case TK_MINUS:
+      break; case TK_PLUS:
+      break; case TK_MINUS:
         printf("  neg rax\n");
-        break;
-      case TK_EXCLAMATION:
-        printf("  mov rdx, rax\n");
-        printf("  xor rax, rax\n");
-        printf("  test rdx, rdx\n");
+      break; case TK_EXCLAMATION:
+        printf("  test rax, rax\n");
         printf("  sete al\n");
-        break;
+        printf("  movzb rax, al\n");
     }
-
-    printf("  push rax\n");
     return;
   }
+
   fatal_error("Cannot generate code for expression kind id %d", node->kind);
 }
+
+void generate_statement(struct Statement *statement)
+{
+  if (statement->kind == SK_EXPRESSION_STATEMENT)
+  {
+    generate(statement->expression_statement.expression);
+    return;
+  }
+
+  fatal_error("Invalid statement kind id %d", statement->kind);
+}
+
+// @oni TODO: better data structure
+#define MAX_STATEMENTS 256
+struct Statement statements[MAX_STATEMENTS];
+int statement_count = 0;
 
 int main(int argc, char *argv[])
 {
@@ -118,15 +135,22 @@ int main(int argc, char *argv[])
   Parser_register_prefix(&parser, TK_PAREN_L, GroupParseletFn);
   Parser_register_prefix(&parser, TK_NUMBER,  LiteralParseletFn);
 
-  struct Statement* statement = Parser_parse_statement(&parser);
+  while (!TokenStream_end(parser.stream))
+  {
+    statements[statement_count] = Parser_parse_statement(&parser);
+    ++statement_count;
+  }
 
   printf(".intel_syntax noprefix\n");
   printf(".globl main\n");
   printf("main:\n");
 
-  generate(statement->expression_statement.expression);
+  for (int i = 0; i < statement_count; ++i)
+  {
+    generate_statement(&statements[i]);
+  }
 
-  printf("  pop rax\n");
   printf("  ret\n");
+
   return 0;
 }

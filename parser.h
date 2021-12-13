@@ -129,6 +129,6 @@ void Parser_register_infix(struct Parser* parser, enum TokenKind kind, InfixPars
 void Parser_prefix_operator(struct Parser* parser, enum TokenKind kind);
 void Parser_binary_operator(struct Parser* parser, enum TokenKind kind, int precedence, enum OperatorAssociativity associativity);
 
-struct Statement* Parser_parse_statement(struct Parser* parser);
+struct Statement Parser_parse_statement(struct Parser* parser);
 
 #endif // JAMCC_PARSER_H
