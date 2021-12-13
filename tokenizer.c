@@ -201,6 +201,11 @@ struct TokenStream tokenize(char const *p)
       TokenStream_push(&stream, Token_create(TK_LT, (struct String){p++, 1}));
       continue;
     }
+    else if (*p == ';')
+    {
+      TokenStream_push(&stream, Token_create(TK_SEMICOLON, (struct String){p++, 1}));
+      continue;
+    }
 
     if (isdigit(*p))
     {

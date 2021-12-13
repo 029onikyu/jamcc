@@ -125,3 +125,13 @@ void Parser_binary_operator(struct Parser* parser, enum TokenKind kind, int prec
 {
   Parser_register_infix(parser, kind, BinaryOperatorParseletFn, precedence, associativity);
 }
+
+struct Statement* Parser_parse_statement(struct Parser* parser)
+{
+  struct Expression* expression = Parser_parse_expression(parser);
+  TokenStream_expect(parser->stream, TK_SEMICOLON);
+  struct Statement* statement = calloc(1, sizeof(struct Statement));
+  statement->kind = SK_EXPRESSION_STATEMENT;
+  statement->expression_statement.expression = expression;
+  return statement;
+}

@@ -86,6 +86,7 @@ void generate(struct Expression* node)
     printf("  push rax\n");
     return;
   }
+  fatal_error("Cannot generate code for expression kind id %d", node->kind);
 }
 
 int main(int argc, char *argv[])
@@ -117,13 +118,13 @@ int main(int argc, char *argv[])
   Parser_register_prefix(&parser, TK_PAREN_L, GroupParseletFn);
   Parser_register_prefix(&parser, TK_NUMBER,  LiteralParseletFn);
 
-  struct Expression* expr_tree = Parser_parse_expression(&parser);
+  struct Statement* statement = Parser_parse_statement(&parser);
 
   printf(".intel_syntax noprefix\n");
   printf(".globl main\n");
   printf("main:\n");
 
-  generate(expr_tree);
+  generate(statement->expression_statement.expression);
 
   printf("  pop rax\n");
   printf("  ret\n");

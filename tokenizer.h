@@ -22,6 +22,7 @@ enum TokenKind
   TK_LT,           // <
   TK_LTE,          // <=
   TK_EXCLAMATION,  // !
+  TK_SEMICOLON,    // ;
   TK_QUESTION,     // ?
   TK_COLON,        // :
   TK_END,

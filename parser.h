@@ -68,6 +68,24 @@ enum OperatorAssociativity
   OA_COUNT_,
 };
 
+enum StatementKind
+{
+  SK_EXPRESSION_STATEMENT,
+
+  SK_COUNT_
+};
+
+struct Statement
+{
+  enum StatementKind kind;
+  union
+  {
+    struct {
+      struct Expression* expression;
+    } expression_statement;
+  };
+};
+
 typedef struct Expression* (*PrefixParseletFn)(struct Parser* parser, struct Token tok);
 
 struct PrefixParselet
@@ -110,5 +128,7 @@ void Parser_register_prefix(struct Parser* parser, enum TokenKind kind, PrefixPa
 void Parser_register_infix(struct Parser* parser, enum TokenKind kind, InfixParseletFn parselet_fn, int precedence, enum OperatorAssociativity associativity);
 void Parser_prefix_operator(struct Parser* parser, enum TokenKind kind);
 void Parser_binary_operator(struct Parser* parser, enum TokenKind kind, int precedence, enum OperatorAssociativity associativity);
+
+struct Statement* Parser_parse_statement(struct Parser* parser);
 
 #endif // JAMCC_PARSER_H
