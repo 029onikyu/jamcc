@@ -87,7 +87,7 @@ struct Expression* Parser_parse_expression_precedence(struct Parser* parser, int
 
   if (!prefix.fn)
   {
-    fatal_error("Could not parse '%s'", tok.str);
+    fatal_error("Could not parse '%.*s'", tok.str.length, tok.str.data);
   }
 
   struct Expression* left = prefix.fn(parser, tok);
@@ -130,9 +130,21 @@ struct Statement Parser_parse_statement(struct Parser* parser)
 {
   struct Expression* expression = Parser_parse_expression(parser);
   TokenStream_expect(parser->stream, TK_SEMICOLON);
-  
+
   struct Statement statement;
   statement.kind = SK_EXPRESSION_STATEMENT;
   statement.expression_statement.expression = expression;
   return statement;
+}
+
+struct Program Parser_parse_program(struct Parser* parser)
+{
+  struct Program p;
+  p.statement_count = 0;
+  while (!TokenStream_end(parser->stream))
+  {
+    p.statements[p.statement_count] = Parser_parse_statement(parser);
+    ++p.statement_count;
+  }
+  return p;
 }

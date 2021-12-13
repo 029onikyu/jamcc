@@ -2,7 +2,7 @@
 
 CFLAGS= -O0 -g -static -Wall -Wextra
 
-jamcc: jamcc.c utility.c tokenizer.c parser.c
+jamcc: jamcc.c utility.c tokenizer.c parser.c codegen.c
 
 test: jamcc
 >./test.sh

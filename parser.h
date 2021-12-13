@@ -86,6 +86,17 @@ struct Statement
   };
 };
 
+struct Program
+{
+  // @oni TODO: better data structure
+  enum ProgramConsts
+  {
+    PROGRAM_MAX_STATEMENTS = 256
+  };
+  struct Statement statements[PROGRAM_MAX_STATEMENTS];
+  int statement_count;
+};
+
 typedef struct Expression* (*PrefixParseletFn)(struct Parser* parser, struct Token tok);
 
 struct PrefixParselet
@@ -130,5 +141,7 @@ void Parser_prefix_operator(struct Parser* parser, enum TokenKind kind);
 void Parser_binary_operator(struct Parser* parser, enum TokenKind kind, int precedence, enum OperatorAssociativity associativity);
 
 struct Statement Parser_parse_statement(struct Parser* parser);
+
+struct Program Parser_parse_program(struct Parser* parser);
 
 #endif // JAMCC_PARSER_H
