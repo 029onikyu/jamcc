@@ -2,6 +2,8 @@
 
 #include <stdlib.h>
 
+static struct Program* program;
+
 /* prefix operators */
 
 struct Expression* PrefixOperatorParseletFn(struct Parser* parser, struct Token tok)
@@ -137,14 +139,15 @@ struct Statement Parser_parse_statement(struct Parser* parser)
   return statement;
 }
 
-struct Program Parser_parse_program(struct Parser* parser)
+struct Program* Parser_parse_program(struct Parser* parser)
 {
-  struct Program p;
-  p.statement_count = 0;
+  program = calloc(1, sizeof(struct Program));
+  program->statement_count = 0;
+  program->variable_count = 0;
   while (!TokenStream_end(parser->stream))
   {
-    p.statements[p.statement_count] = Parser_parse_statement(parser);
-    ++p.statement_count;
+    program->statements[program->statement_count] = Parser_parse_statement(parser);
+    ++program->statement_count;
   }
-  return p;
+  return program;
 }

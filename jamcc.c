@@ -37,9 +37,9 @@ int main(int argc, char *argv[])
   Parser_register_prefix(&parser, TK_PAREN_L, GroupParseletFn);
   Parser_register_prefix(&parser, TK_NUMBER,  LiteralParseletFn);
 
-  struct Program program = Parser_parse_program(&parser);
+  struct Program* program = Parser_parse_program(&parser);
 
-  generate_program(&program);
+  generate_program(program);
 
   return 0;
 }

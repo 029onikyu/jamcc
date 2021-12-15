@@ -142,6 +142,6 @@ void Parser_binary_operator(struct Parser* parser, enum TokenKind kind, int prec
 
 struct Statement Parser_parse_statement(struct Parser* parser);
 
-struct Program Parser_parse_program(struct Parser* parser);
+struct Program* Parser_parse_program(struct Parser* parser);
 
 #endif // JAMCC_PARSER_H
