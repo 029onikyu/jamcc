@@ -53,5 +53,9 @@ assert 1 "!(0 == 1);"
 assert 0 "!(1 == 1);"
 
 assert 3 "1; 2; 3;"
+assert 20 "var1 = 20;"
+assert 13 "var = 13; var;"
+assert 6 "a = b = 3; a + b;"
+assert 9 "var1 = 3; bar = 5; var1 = var1 + 1; var1 + bar;"
 
 echo OK

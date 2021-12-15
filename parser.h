@@ -27,6 +27,7 @@ struct InfixParselet
 struct Expression* PrefixOperatorParseletFn(struct Parser* parser, struct Token tok);
 struct Expression* GroupParseletFn(struct Parser* parser, struct Token tok);
 struct Expression* LiteralParseletFn(struct Parser* parser, struct Token tok);
+struct Expression* VariableParseletFn(struct Parser* parser, struct Token tok);
 
 /* infix operators */
 

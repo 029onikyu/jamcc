@@ -4,6 +4,18 @@
 
 static struct Program* program;
 
+static struct Variable* find_variable(struct String name)
+{
+  for (int i = 0; i < program->variable_count; ++i)
+  {
+    if (String_equal(&program->variables[i].name, &name))
+    {
+      return &program->variables[i];
+    }
+  }
+  return NULL;
+}
+
 /* prefix operators */
 
 struct Expression* PrefixOperatorParseletFn(struct Parser* parser, struct Token tok)
@@ -30,6 +42,27 @@ struct Expression* LiteralParseletFn(struct Parser* parser, struct Token tok)
   struct Expression* new_expr = calloc(1, sizeof(struct Expression));
   new_expr->kind = EK_LITERAL;
   new_expr->literal.integral_value = tok.value;
+  return new_expr;
+}
+
+struct Expression* VariableParseletFn(struct Parser* parser, struct Token tok)
+{
+  struct Expression* new_expr = calloc(1, sizeof(struct Expression));
+  new_expr->kind = EK_VARIABLE;
+  struct Variable* variable = find_variable(tok.str);
+  if (variable)
+  {
+    new_expr->variable = variable;
+  }
+  else
+  { 
+    // create a new variable
+    new_expr->variable = &program->variables[program->variable_count];
+    ++program->variable_count;
+    new_expr->variable->name = tok.str;
+    new_expr->variable->size = 8;
+    new_expr->variable->alignment = 8;
+  }
   return new_expr;
 }
 

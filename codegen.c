@@ -1,5 +1,6 @@
 #include "codegen.h"
 
+#include <assert.h>
 #include <stdio.h>
 
 static int depth;
@@ -16,6 +17,15 @@ static void pop(char const *arg)
   --depth;
 }
 
+static void generate_address(struct Expression* node)
+{
+  if (node->kind != EK_VARIABLE)
+  {
+    fatal_error("Can't get the address of non-variable expressions");
+  }
+  printf("  lea rax, [rbp + %d]\n", node->variable->offset);
+}
+
 void generate_expression(struct Expression *node)
 {
   if (node->kind == EK_LITERAL)
@@ -23,7 +33,7 @@ void generate_expression(struct Expression *node)
     printf("  mov rax, %d\n", node->literal.integral_value);
     return;
   }
-  if (node->kind == EK_BINARY)
+  else if (node->kind == EK_BINARY)
   {
     generate_expression(node->binary.right);
     push();
@@ -62,10 +72,16 @@ void generate_expression(struct Expression *node)
         else if (node->binary.op == TK_LTE)
           printf("  setle al\n");
         printf("  movzb rax, al\n");
+      break; case TK_EQUALS:
+        generate_address(node->binary.left);
+        push();
+        generate_expression(node->binary.right);
+        pop("rdi");
+        printf("  mov [rdi], rax\n");
     }
     return;
   }
-  if (node->kind == EK_PREFIX)
+  else if (node->kind == EK_PREFIX)
   {
     generate_expression(node->prefix.expr);
 
@@ -79,6 +95,12 @@ void generate_expression(struct Expression *node)
         printf("  sete al\n");
         printf("  movzb rax, al\n");
     }
+    return;
+  }
+  else if (node->kind == EK_VARIABLE)
+  {
+    generate_address(node);
+    printf("  mov rax, [rax]\n");
     return;
   }
 
@@ -96,16 +118,47 @@ void generate_statement(struct Statement *statement)
   fatal_error("Invalid statement kind id %d", statement->kind);
 }
 
+// Round up `n` to the nearest multiple of `align`. For instance,
+// align_to(5, 8) returns 8 and align_to(11, 8) returns 16.
+static int align_to(int n, int align) {
+  return (n + align - 1) / align * align;
+}
+
+static void calculate_variable_offsets(struct Program* program)
+{
+  int totalOffset = 0;
+  for (int i = 0; i < program->variable_count; ++i)
+  {
+    struct Variable* variable = &program->variables[i];
+    totalOffset = align_to(totalOffset + variable->size, variable->alignment);
+    variable->offset = -totalOffset;
+  }
+  program->stack_size = align_to(totalOffset, 16);
+}
+
 void generate_program(struct Program* program)
 {
+  calculate_variable_offsets(program);
+
   printf(".intel_syntax noprefix\n");
+
   printf(".globl main\n");
   printf("main:\n");
+
+  // Prologue
+  printf("  push rbp\n");
+  printf("  mov rbp, rsp\n");
+  printf("  sub rsp, %d\n", program->stack_size);
 
   for (int i = 0; i < program->statement_count; ++i)
   {
     generate_statement(&program->statements[i]);
+    assert(depth == 0);
   }
+
+  // Epilogue
+  printf("  mov rsp, rbp\n");
+  printf("  pop rbp\n");
 
   printf("  ret\n");
 

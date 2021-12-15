@@ -34,8 +34,12 @@ int main(int argc, char *argv[])
   Parser_binary_operator(&parser, TK_LT,        OP_RELATIONAL, OA_LEFT_ASSOCIATIVE);
   Parser_binary_operator(&parser, TK_LTE,       OP_RELATIONAL, OA_LEFT_ASSOCIATIVE);
   //Parser_binary_operator(&parser, TK_CARET, OP_EXPONENT, OA_RIGHT_ASSOCIATIVE); // exponentiation
+
+  Parser_binary_operator(&parser, TK_EQUALS, OP_ASSIGNMENT, OA_RIGHT_ASSOCIATIVE);
+
   Parser_register_prefix(&parser, TK_PAREN_L, GroupParseletFn);
   Parser_register_prefix(&parser, TK_NUMBER,  LiteralParseletFn);
+  Parser_register_prefix(&parser, TK_IDENTIFIER, VariableParseletFn);
 
   struct Program* program = Parser_parse_program(&parser);
 

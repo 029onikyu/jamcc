@@ -167,6 +167,8 @@ struct TokenStream tokenize(char const *p)
         p += 2;
         continue;
       }
+      TokenStream_push(&stream, Token_create(TK_EQUALS, (struct String){p++, 1}));
+      continue;
     }
     else if (*p == '!')
     {
@@ -212,6 +214,17 @@ struct TokenStream tokenize(char const *p)
       char const *str = p;
       long value = strtol(p, (char **)&p, 10);
       TokenStream_push(&stream, Token_create_number(value, (struct String){str, p - str}));
+      continue;
+    }
+
+    // @oni TODO: unicode identifiers
+    if (isalpha(*p))
+    {
+      char const *str = p;
+      do {
+        ++p;
+      } while (isalnum(*p));
+      TokenStream_push(&stream, Token_create(TK_IDENTIFIER, (struct String){str, p - str}));
       continue;
     }
 
