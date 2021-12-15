@@ -1,34 +1,9 @@
 #ifndef JAMCC_TOKENIZER_H
 #define JAMCC_TOKENIZER_H
 
+#include "jamcc.h"
 #include "utility.h"
 #include "jstring.h"
-
-// the different types of tokens that exist
-enum TokenKind
-{
-  TK_RESERVED,
-  TK_NUMBER,       // [0-9]+
-  TK_PLUS,         // +
-  TK_MINUS,        // -
-  TK_ASTERISK,     // *
-  TK_BACKSLASH,    // /
-  TK_PAREN_L,      // (
-  TK_PAREN_R,      // )
-  TK_EQUAL,        // ==
-  TK_NOT_EQUAL,    // !=
-  TK_GT,           // >
-  TK_GTE,          // >=
-  TK_LT,           // <
-  TK_LTE,          // <=
-  TK_EXCLAMATION,  // !
-  TK_SEMICOLON,    // ;
-  TK_QUESTION,     // ?
-  TK_COLON,        // :
-  TK_END,
-
-  TK_COUNT_,
-};
 
 // a singular representable unit of code
 struct Token

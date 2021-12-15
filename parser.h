@@ -1,101 +1,10 @@
 #ifndef JAMCC_PARSER_H
 #define JAMCC_PARSER_H
 
+#include "jamcc.h"
 #include "tokenizer.h"
 
 struct Parser;
-
-enum ExpressionKind
-{
-  EK_PREFIX,
-  EK_BINARY,
-  EK_LITERAL,
-  EK_VARIABLE,
-  EK_CONDITIONAL,
-
-  EK_COUNT_
-};
-
-struct Expression
-{
-  enum ExpressionKind kind;
-  union 
-  {
-    struct
-    {
-      enum TokenKind op;
-      struct Expression* expr;
-    } prefix;
-    struct 
-    {
-      enum TokenKind op;
-      struct Expression* left;
-      struct Expression* right;
-    } binary;
-    struct
-    {
-      struct Expression* condition;
-      struct Expression* then_branch;
-      struct Expression* else_branch;
-    } conditional;
-    struct
-    {
-      int integral_value;
-    } literal;
-  };
-};
-
-enum OperatorPrecedence
-{
-  OP_NONE,
-  OP_ASSIGNMENT,
-  OP_EQUALITY,
-  OP_RELATIONAL,
-  OP_SUM,
-  OP_PRODUCT,
-  OP_PREFIX,
-  OP_POSTFIX,
-  OP_CALL,
-
-  OP_COUNT_
-};
-
-enum OperatorAssociativity
-{
-  OA_LEFT_ASSOCIATIVE  = 0,
-  OA_RIGHT_ASSOCIATIVE = 1,
-
-  OA_COUNT_,
-};
-
-enum StatementKind
-{
-  SK_EXPRESSION_STATEMENT,
-
-  SK_COUNT_
-};
-
-struct Statement
-{
-  enum StatementKind kind;
-  union
-  {
-    struct {
-      struct Expression* expression;
-    } expression_statement;
-  };
-};
-
-struct Program
-{
-  // @oni TODO: better data structure
-  enum ProgramConsts
-  {
-    PROGRAM_MAX_STATEMENTS = 256
-  };
-  struct Statement statements[PROGRAM_MAX_STATEMENTS];
-  int statement_count;
-};
 
 typedef struct Expression* (*PrefixParseletFn)(struct Parser* parser, struct Token tok);
 
